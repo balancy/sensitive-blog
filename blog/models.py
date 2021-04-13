@@ -31,6 +31,9 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post_detail', args={'slug': self.slug})
 
+    def get_likes_count(self):
+        self.likes.count()
+
     class Meta:
         ordering = ['-published_at']
         verbose_name = 'пост'
