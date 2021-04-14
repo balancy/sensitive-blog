@@ -10,29 +10,34 @@ class PostQuerySet(models.QuerySet):
     def popular(self):
         return self.annotate(likes_count=models.Count('likes')).order_by('-likes_count')
 
+    def fresh(self, number):
+        fresh_posts = self.order_by('-published_at')
+        most_fresh_posts_ids = [post.id for post in fresh_posts[:number]]
+        return fresh_posts.filter(id__in=most_fresh_posts_ids)
+
 
 class Post(models.Model):
-    title = models.CharField("Заголовок", max_length=200)
-    text = models.TextField("Текст")
-    slug = models.SlugField("Название в виде url", max_length=200)
-    image = models.ImageField("Картинка")
-    published_at = models.DateTimeField("Дата и время публикации")
+    title = models.CharField('Заголовок', max_length=200)
+    text = models.TextField('Текст')
+    slug = models.SlugField('Название в виде url', max_length=200)
+    image = models.ImageField('Картинка')
+    published_at = models.DateTimeField('Дата и время публикации')
     objects = PostQuerySet.as_manager()
 
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name="Автор",
+        verbose_name='Автор',
         limit_choices_to={'is_staff': True})
     likes = models.ManyToManyField(
         User,
-        related_name="liked_posts",
-        verbose_name="Кто лайкнул",
+        related_name='liked_posts',
+        verbose_name='Кто лайкнул',
         blank=True)
     tags = models.ManyToManyField(
-        "Tag",
-        related_name="posts",
-        verbose_name="Теги")
+        'Tag',
+        related_name='posts',
+        verbose_name='Теги')
 
     def __str__(self):
         return self.title
@@ -65,25 +70,25 @@ class Tag(models.Model):
         return reverse('tag_filter', args={'tag_title': self.slug})
 
     class Meta:
-        ordering = ["title"]
+        ordering = ['title']
         verbose_name = 'тег'
         verbose_name_plural = 'теги'
 
 
 class Comment(models.Model):
     post = models.ForeignKey(
-        "Post",
+        'Post',
         on_delete=models.CASCADE,
-        verbose_name="Пост, к которому написан",
-        related_name="comments",
+        verbose_name='Пост, к которому написан',
+        related_name='comments',
     )
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
-        verbose_name="Автор")
+        verbose_name='Автор')
 
-    text = models.TextField("Текст комментария")
-    published_at = models.DateTimeField("Дата и время публикации")
+    text = models.TextField('Текст комментария')
+    published_at = models.DateTimeField('Дата и время публикации')
 
     def __str__(self):
         return f"{self.author.username} under {self.post.title}"
