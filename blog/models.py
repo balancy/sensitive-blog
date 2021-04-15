@@ -5,15 +5,10 @@ from django.contrib.auth.models import User
 
 class PostQuerySet(models.QuerySet):
     def fetch_with_comments_count(self):
-        return self.annotate(comments_count=models.Count('comments')).order_by('-comments_count')
+        return self.annotate(comments_count=models.Count('comments'))
 
     def popular(self):
         return self.annotate(likes_count=models.Count('likes')).order_by('-likes_count')
-
-    def fresh(self, number):
-        fresh_posts = self.order_by('-published_at')
-        most_fresh_posts_ids = [post.id for post in fresh_posts[:number]]
-        return fresh_posts.filter(id__in=most_fresh_posts_ids)
 
 
 class Post(models.Model):
