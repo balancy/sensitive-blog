@@ -59,7 +59,7 @@ def post_detail(request, slug):
         popular().\
         first()
 
-    comments = post.comments.prefetch_related('author')
+    comments = post.comments.select_related('author')
 
     serialized_comments = []
     for comment in comments:
@@ -96,14 +96,16 @@ def post_detail(request, slug):
 
 
 def tag_filter(request, tag_title):
-    tag = Tag.objects.get(title=tag_title)
-    most_popular_tags = Tag.objects.popular()[:5]
+    all_tags = Tag.objects.all()
+    most_popular_tags = all_tags.popular()[:5]
+
+    tag = all_tags.get(title=tag_title)
 
     all_posts = Post.objects.prefetch_related('author')
     most_popular_posts = all_posts.popular()[:5]
 
     related_posts = \
-        tag.posts.prefetch_related('author') \
+        tag.posts.select_related('author') \
         .prefetch_related('tags') \
         .fetch_with_comments_count()[:20]
 
