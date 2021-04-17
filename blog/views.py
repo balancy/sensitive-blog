@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from blog.models import Post, Tag
 
 
@@ -99,7 +99,7 @@ def tag_filter(request, tag_title):
     all_tags = Tag.objects.all()
     most_popular_tags = all_tags.popular()[:5]
 
-    tag = all_tags.get(title=tag_title)
+    tag = get_object_or_404(Tag, title=tag_title)
 
     all_posts = Post.objects.prefetch_related('author')
     most_popular_posts = all_posts.popular()[:5]
