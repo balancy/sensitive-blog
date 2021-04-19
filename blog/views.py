@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from blog.models import Post, Tag
 
@@ -58,6 +59,9 @@ def post_detail(request, slug):
         select_related('author').\
         popular().\
         first()
+
+    if post is None:
+        raise Http404
 
     comments = post.comments.select_related('author')
 
